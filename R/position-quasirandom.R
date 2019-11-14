@@ -1,4 +1,4 @@
-#' Violin point-style plots to show overlapping points. x must be discrete.
+#' Preserves the y-axis position of a geom while adjusting the x-axis position to help with overplotting. The x-axis must be discrete.
 #' 
 #' @family position adjustments
 #' @param width the maximum amount of spread (default: 0.4)
