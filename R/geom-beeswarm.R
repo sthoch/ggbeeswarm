@@ -33,6 +33,8 @@ geom_beeswarm <- function(
   priority = c("ascending", "descending", "density", "random", "none"),
   groupOnX=NULL,
   dodge.width=0,
+  corral = c("none", "gutter"),
+  corral.width=0,
   beeswarmArgs=list(),
   stat='identity',
   na.rm = FALSE,
@@ -40,7 +42,7 @@ geom_beeswarm <- function(
   inherit.aes = TRUE,
   ...
 ) {
-  position <- position_beeswarm(groupOnX=groupOnX,dodge.width=dodge.width)
+  position <- position_beeswarm(groupOnX=groupOnX,dodge.width=dodge.width,corral=corral,corral.width=corral.width)
   ggplot2::layer(
     data = data,
     mapping = mapping,
@@ -54,6 +56,8 @@ geom_beeswarm <- function(
       priority = priority,
       groupOnX=groupOnX,
       dodge.width=dodge.width,
+      corral=corral,
+      corral.width=corral.width,
       beeswarmArgs=beeswarmArgs,
       ...
     )
@@ -63,7 +67,7 @@ geom_beeswarm <- function(
 #' geom object for use in geom_beeswarm
 #' @export
 GeomBeeswarm <- ggplot2::ggproto("GeomBeeswarm", ggplot2::GeomPoint,
-  draw_panel = function(data, panel_params, coord, priority = c("ascending", "descending", "density", "random", "none"), cex=1, groupOnX=NULL, dodge.width=0, beeswarmArgs=list(), na.rm = FALSE) {
+  draw_panel = function(data, panel_params, coord, priority = c("ascending", "descending", "density", "random", "none"), cex=1, groupOnX=NULL, dodge.width=0, corral=c("none", "gutter"), corral.width=0,beeswarmArgs=list(), na.rm = FALSE) {
     if (is.character(data$shape)) {
       data$shape <- ggplot2::translate_shape_string(data$shape)
     }
@@ -73,6 +77,8 @@ GeomBeeswarm <- ggplot2::ggproto("GeomBeeswarm", ggplot2::GeomPoint,
       priority=priority,
       groupOnX=groupOnX,
       dodge.width=dodge.width,
+      corral=corral,
+      corral.width=corral.width,
       beeswarmArgs=beeswarmArgs,
       gp=grid::gpar(
         col = alpha(coords$colour, coords$alpha),
@@ -96,7 +102,7 @@ makeContent.beeswarm <- function(self) {
     grid::convertX(grid::grobWidth(grid::textGrob('o',gp=grid::gpar(cex=1))),'native'),
     grid::convertY(grid::grobHeight(grid::textGrob('o',gp=grid::gpar(cex=1))),'native')
   )
-  coords<-offset_beeswarm(self$coords,priority=self$priority,cex=self$coords$size[1],groupOnX=self$groupOnX,dodge.width=self$dodge.width,beeswarmArgs=self$beeswarmArgs,oSize=oSize)
+  coords<-offset_beeswarm(self$coords,priority=self$priority,cex=self$coords$size[1],groupOnX=self$groupOnX,dodge.width=self$dodge.width,corral=self$corral,corral.width=self$corral.width,beeswarmArgs=self$beeswarmArgs,oSize=oSize)
 
   grid::pointsGrob(
     coords$x, coords$y,

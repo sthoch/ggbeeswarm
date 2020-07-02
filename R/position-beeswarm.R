@@ -15,7 +15,7 @@
 #' @seealso \code{\link{geom_beeswarm}}, \code{\link{position_quasirandom}}, \code{\link[beeswarm]{swarmx}}
 
 
-offset_beeswarm= function(data,xRange=1,yRange=1,priority = c("ascending", "descending", "density", "random", "none"), cex=1, groupOnX=NULL, dodge.width=0, beeswarmArgs=list(),oSize=c(1/200,1/200)){
+offset_beeswarm= function(data,xRange=1,yRange=1,priority = c("ascending", "descending", "density", "random", "none"), cex=1, groupOnX=NULL, dodge.width=0, corral = c("none", "gutter"), corral.width=0, beeswarmArgs=list(),oSize=c(1/200,1/200)){
   # Adjust function is used to calculate new positions (from ggplot2:::Position)
   data <- remove_missing(data, vars = c("x","y"), name = "position_beeswarm")
   if (nrow(data)==0) return(data.frame())
@@ -45,18 +45,27 @@ offset_beeswarm= function(data,xRange=1,yRange=1,priority = c("ascending", "desc
     )$x
     }
   )
+  #corral
+  if(corral != 'none') {
+    if (corral.width > 0) {
+      corralMin <- -corral.width/2
+      corralMax <- corral.width/2
+      offset <- pmin(pmax(offset, corralMin), corralMax)
+    }
+
+  }
   data[,ifelse(groupOnX,'x','y')]<-data[,ifelse(groupOnX,'x','y')]+offset
 
   return(data)
 }
     
-position_beeswarm <- function (groupOnX=NULL,dodge.width=0){
-  ggplot2::ggproto(NULL,PositionBeeswarm,groupOnX=groupOnX,dodge.width=dodge.width)
+position_beeswarm <- function (groupOnX=NULL,dodge.width=0, corral = corral, corral.width = corral.width){
+  ggplot2::ggproto(NULL,PositionBeeswarm,groupOnX=groupOnX,dodge.width=dodge.width,corral = corral, corral.width = corral.width)
 }
 
 PositionBeeswarm <- ggplot2::ggproto("PositionBeeswarm",ggplot2:::Position,required_aes=c('x','y'),
   setup_params=function(self,data){
-    list(groupOnX=self$groupOnX,dodge.width=self$dodge.width)
+    list(groupOnX=self$groupOnX,dodge.width=self$dodge.width,corral=self$corral, corral.width=self$corral.width)
   },
   compute_panel= function(data,params,scales){
     data <- remove_missing(data, vars = c("x","y"), name = "position_quasirandom")
